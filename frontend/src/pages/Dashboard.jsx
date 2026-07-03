@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config';
 import ReactMarkdown from 'react-markdown';
 
 export default function Dashboard() {
@@ -36,7 +37,7 @@ export default function Dashboard() {
       if (!token) { navigate('/login'); return; }
 
       try {
-        const authResponse = await fetch('http://127.0.0.1:8000/api/dashboard-data', {
+        const authResponse = await fetch(`${API_BASE}/api/dashboard-data`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -44,7 +45,7 @@ export default function Dashboard() {
           const authData = await authResponse.json();
           setBackendMessage(authData.message);
 
-          const resumeResponse = await fetch('http://127.0.0.1:8000/api/resume', {
+          const resumeResponse = await fetch(`${API_BASE}/api/resume`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           
@@ -64,7 +65,7 @@ export default function Dashboard() {
             }
           }
           
-          const projectsResponse = await fetch('http://127.0.0.1:8000/api/projects', {
+          const projectsResponse = await fetch(`${API_BASE}/api/projects`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (projectsResponse.ok) {
@@ -103,7 +104,7 @@ export default function Dashboard() {
       stats: stats
     };
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/resume', {
+      const response = await fetch(`${API_BASE}/api/resume`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(resumeData)
@@ -131,7 +132,7 @@ export default function Dashboard() {
   const syncProjectsWithBackend = async (updatedProjects) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/projects', {
+      const response = await fetch(`${API_BASE}/api/projects`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedProjects)
@@ -164,7 +165,7 @@ export default function Dashboard() {
       
       try {
         // Backend'e projeyi ve fiziksel dosyalarını silmesi için özel istek atıyoruz
-        const response = await fetch(`http://127.0.0.1:8000/api/projects/${id}`, {
+        const response = await fetch(`${API_BASE}/api/projects/${id}`, {
           method: 'DELETE',
           headers: { 
             'Authorization': `Bearer ${token}` 
@@ -195,7 +196,7 @@ export default function Dashboard() {
     formData.append('project_id', editingProject.id); // YENİ: Proje ID'sini arka uca gönderiyoruz
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/upload-image', {
+      const response = await fetch(`${API_BASE}/api/upload-image`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -221,7 +222,7 @@ export default function Dashboard() {
 
     // 1. Önce backend'den resmi fiziksel olarak silmek için istek atıyoruz
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/delete-image', {
+      const response = await fetch(`${API_BASE}/api/delete-image`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`,

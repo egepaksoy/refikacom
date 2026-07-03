@@ -4,14 +4,13 @@ import json
 import shutil # Dosya kaydetmek için
 import uuid   # Benzersiz dosya isimleri üretmek için
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles # Yüklenen fotoğrafları dışarı sunmak için
 from pydantic import BaseModel
 from typing import List
 from jose import JWTError, jwt
-from fastapi import Form # Form verisi okumak için eklendi
 
 # 1. Güvenlik Ayarları
 SECRET_KEY = "REFIKA32PAKSOY06"
@@ -20,15 +19,30 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 app = FastAPI()
 
+# Kalıcı Veri Depolama Dizinleri (Render Persistent Disk desteği için)
+DATA_DIR = os.getenv("DATA_DIR", ".")
+RESUME_FILE = os.path.join(DATA_DIR, "resume_data.json")
+PROJECTS_FILE = os.path.join(DATA_DIR, "projects_data.json")
+UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
+
 # Fotoğrafların kaydedileceği klasörü oluştur
-os.makedirs("uploads", exist_ok=True)
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 # Bu klasörü dışarıya (frontend'e) statik olarak aç
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 # 2. CORS Ayarları
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://egepaksoy.github.io"
+]
+env_origins = os.getenv("ALLOWED_ORIGINS")
+if env_origins:
+    allowed_origins.extend(env_origins.split(","))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -190,12 +204,13 @@ async def save_projects(projects: List[ProjectItem], token: str = Depends(oauth2
 # 3. Fotoğraf Yükleme (POST) - GÜNCELLENDİ
 @app.post("/api/upload-image")
 async def upload_image(
+    request: Request,
     project_id: str = Form(...), # React'ten gelecek Proje ID'si
     file: UploadFile = File(...), 
     token: str = Depends(oauth2_scheme)
 ):
-    # Projeye özel klasör oluştur (Örn: uploads/1715421234/)
-    project_folder = f"uploads/{project_id}"
+    # Projeye özel klasör oluştur
+    project_folder = os.path.join(UPLOADS_DIR, project_id)
     os.makedirs(project_folder, exist_ok=True)
 
     # Benzersiz dosya adı oluştur
@@ -203,12 +218,13 @@ async def upload_image(
     unique_filename = f"{uuid.uuid4().hex}.{ext}"
     
     # Dosyayı ilgili projenin klasörüne kaydet
-    file_path = f"{project_folder}/{unique_filename}"
+    file_path = os.path.join(project_folder, unique_filename)
     
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    return {"url": f"http://127.0.0.1:8000/{file_path}"}
+    base_url = str(request.base_url)
+    return {"url": f"{base_url}uploads/{project_id}/{unique_filename}"}
 
 
 # 4. Fotoğraf Silme (DELETE) - YENİ EKLENDİ
@@ -217,11 +233,10 @@ class DeleteImageRequest(BaseModel):
 
 @app.delete("/api/delete-image")
 async def delete_image(request: DeleteImageRequest, token: str = Depends(oauth2_scheme)):
-    # URL'den sunucudaki fiziksel dosya yolunu çıkar 
-    # (Örn: "http://127.0.0.1:8000/uploads/123/foto.jpg" -> "uploads/123/foto.jpg")
-    base_url = "http://127.0.0.1:8000/"
-    if request.image_url.startswith(base_url):
-        file_path = request.image_url.replace(base_url, "")
+    # URL'den sunucudaki fiziksel dosya yolunu çıkar
+    if "/uploads/" in request.image_url:
+        relative_path = request.image_url.split("/uploads/")[-1]
+        file_path = os.path.join(UPLOADS_DIR, relative_path)
         
         # Dosya fiziksel olarak varsa sunucudan sil
         if os.path.exists(file_path):
@@ -246,7 +261,7 @@ async def delete_project(project_id: str, token: str = Depends(oauth2_scheme)):
             json.dump(filtered_projects, f, ensure_ascii=False, indent=4)
             
     # 2. Projenin "uploads" altındaki klasörünü ve içindeki tüm görselleri fiziksel olarak yok et
-    project_folder = f"uploads/{project_id}"
+    project_folder = os.path.join(UPLOADS_DIR, project_id)
     if os.path.exists(project_folder):
         shutil.rmtree(project_folder) 
         

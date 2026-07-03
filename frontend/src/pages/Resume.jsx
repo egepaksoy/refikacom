@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config';
 
 export default function Resume() {
   const [resumeData, setResumeData] = useState({ bio: '', education: [], contact: null, stats: [] });
@@ -13,8 +14,8 @@ export default function Resume() {
     const fetchData = async () => {
       try {
         const [resumeRes, projectsRes] = await Promise.all([
-          fetch('http://127.0.0.1:8000/api/public/resume'),
-          fetch('http://127.0.0.1:8000/api/public/projects')
+          fetch(`${API_BASE}/api/public/resume`),
+          fetch(`${API_BASE}/api/public/projects`)
         ]);
         if (resumeRes.ok) setResumeData(await resumeRes.json());
         if (projectsRes.ok) setProjects(await projectsRes.json());

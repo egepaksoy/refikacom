@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Outlet, Link } from 'react-router-dom';
+import { API_BASE } from '../config';
 
 export default function PublicLayout() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -26,7 +27,7 @@ export default function PublicLayout() {
 
   // Akademik profilleri ve iletişim bilgilerini çekme
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/public/resume')
+    fetch(`${API_BASE}/api/public/resume`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data && data.contact) {

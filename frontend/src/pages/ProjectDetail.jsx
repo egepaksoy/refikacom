@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config';
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -12,7 +13,7 @@ export default function ProjectDetail() {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/public/projects');
+        const response = await fetch(`${API_BASE}/api/public/projects`);
         if (response.ok) {
           const allProjects = await response.json();
           const foundProject = allProjects.find(p => p.id.toString() === id);
