@@ -1,218 +1,281 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Link, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Resume() {
-  const [resumeData, setResumeData] = useState({ bio: '', education: [] });
+  const [resumeData, setResumeData] = useState({ bio: '', education: [], contact: null, stats: [] });
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // Ekran genişliğini takip eden state (768px altı mobil kabul edilir)
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const location = useLocation();
+  const navigate = useNavigate();
+  const isMobile = window.innerWidth <= 768;
 
   useEffect(() => {
-    // Ekran boyutu değiştiğinde isMobile durumunu güncelle
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    const fetchResume = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/public/resume');
-        if (response.ok) {
-          const data = await response.json();
-          setResumeData(data);
-        }
+        const [resumeRes, projectsRes] = await Promise.all([
+          fetch('http://127.0.0.1:8000/api/public/resume'),
+          fetch('http://127.0.0.1:8000/api/public/projects')
+        ]);
+        if (resumeRes.ok) setResumeData(await resumeRes.json());
+        if (projectsRes.ok) setProjects(await projectsRes.json());
       } catch (error) {
         console.error("Veri çekilirken hata:", error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchResume();
+    fetchData();
   }, []);
 
-  // Menü linkleri için mobil uyumlu zarif stil ayarlaması
-  const linkStyle = (path) => ({
-    display: isMobile ? 'inline-block' : 'block',
-    padding: isMobile ? '10px 15px' : '12px 20px',
-    color: location.pathname === path ? '#E0A96D' : '#bdc3c7',
-    textDecoration: 'none',
-    fontSize: isMobile ? '15px' : '18px',
-    letterSpacing: '1px',
-    // Mobilde alt çizgi, masaüstünde sol çizgi vurgusu
-    borderLeft: !isMobile && location.pathname === path ? '4px solid #E0A96D' : (!isMobile ? '4px solid transparent' : 'none'),
-    borderBottom: isMobile && location.pathname === path ? '3px solid #E0A96D' : (isMobile ? '3px solid transparent' : 'none'),
-    backgroundColor: location.pathname === path ? 'rgba(224, 169, 109, 0.05)' : 'transparent',
-    transition: 'all 0.3s ease',
-    marginBottom: isMobile ? '0' : '10px',
-    marginRight: isMobile ? '10px' : '0',
-    borderRadius: isMobile ? '4px 4px 0 0' : '0'
-  });
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <div style={{ fontSize: '18px', color: 'var(--primary)', fontWeight: '500', letterSpacing: '0.05em' }}>
+          İçerik Yükleniyor...
+        </div>
+      </div>
+    );
+  }
+
+  const displayBio = resumeData.bio;
+  const heroTitle = resumeData.hero_title || "Fizik Dünyasını Keşfetmek";
+  const heroSub = resumeData.hero_subtitle || "Kuantum Hesaplama & Yüksek Enerji Fiziği Araştırmacısı";
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: isMobile ? 'column' : 'row', 
-      minHeight: '100vh', 
-      backgroundColor: '#FDFBF9', 
-      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" 
-    }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '50px' : '80px', animation: 'fadeIn 0.8s ease' }}>
       
-      {/* Menü Alanı (Masaüstünde Sidebar, Mobilde Header) */}
-      <aside style={{ 
-        width: isMobile ? '100%' : '280px', 
-        backgroundColor: '#1B263B', 
-        color: 'white', 
-        display: 'flex', 
-        flexDirection: 'column',
-        position: isMobile ? 'relative' : 'fixed', 
-        height: isMobile ? 'auto' : '100vh',
-        boxShadow: isMobile ? '0 4px 10px rgba(0,0,0,0.1)' : '4px 0 15px rgba(0,0,0,0.1)',
-        zIndex: 10
+      {/* Premium Hero / Tanıtım Bölümü */}
+      <section style={{ 
+        position: 'relative', 
+        padding: isMobile ? '40px 25px' : '60px 50px', 
+        borderRadius: '20px', 
+        background: 'linear-gradient(135deg, var(--hero-bg-start) 0%, var(--hero-bg-end) 100%)',
+        color: 'white',
+        boxShadow: 'var(--shadow-lg)',
+        overflow: 'hidden'
       }}>
-        <div style={{ padding: isMobile ? '30px 20px 10px' : '50px 30px', textAlign: 'center' }}>
-          <div style={{ 
-            width: isMobile ? '70px' : '100px', 
-            height: isMobile ? '70px' : '100px', 
-            backgroundColor: '#E0A96D', 
-            borderRadius: '50%', 
-            margin: '0 auto 15px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: isMobile ? '28px' : '36px',
-            color: '#1B263B',
-            fontWeight: 'bold',
-            fontFamily: "'Playfair Display', serif"
-          }}>
-            F
-          </div>
-          <h1 style={{ margin: '0 0 5px 0', fontSize: isMobile ? '20px' : '24px', letterSpacing: '2px', fontFamily: "'Playfair Display', serif", fontWeight: 'normal' }}>
-            Portfolyo
-          </h1>
-          <p style={{ margin: 0, color: '#E0A96D', fontSize: '12px', letterSpacing: '2px', textTransform: 'uppercase' }}>
-            Fizikçi
+        {/* Dekoratif Kozmik Daireler */}
+        <div style={{ position: 'absolute', right: '-50px', top: '-50px', width: '250px', height: '250px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(194,149,110,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', left: '10%', bottom: '-100px', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(194,149,110,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: '12px', fontWeight: '700', letterSpacing: '0.2em', display: 'block', marginBottom: '12px' }}>
+            Hoş Geldiniz
+          </span>
+          <h2 style={{ color: 'white', fontSize: isMobile ? '28px' : '44px', fontFamily: 'var(--font-serif)', fontWeight: '400', lineHeight: '1.25', marginBottom: '15px' }}>
+            {heroTitle}
+          </h2>
+          <p style={{ color: '#94A3B8', fontSize: isMobile ? '15px' : '18px', maxWidth: '700px', fontWeight: '300', marginBottom: '35px', lineHeight: '1.6' }}>
+            {heroSub}
           </p>
-        </div>
-
-        <nav style={{ 
-          marginTop: isMobile ? '10px' : '30px', 
-          display: 'flex', 
-          flexDirection: isMobile ? 'row' : 'column',
-          justifyContent: isMobile ? 'center' : 'flex-start',
-          flexWrap: 'wrap',
-          paddingBottom: isMobile ? '10px' : '0'
-        }}>
-          <Link to="/" style={linkStyle('/')}>Hakkımda</Link>
-          <Link to="/projects" style={linkStyle('/projects')}>Çalışmalar & Yayınlar</Link>
-        </nav>
-        
-        {!isMobile && (
-          <div style={{ marginTop: 'auto', padding: '30px', color: '#7f8c8d', fontSize: '12px', textAlign: 'center' }}>
-            © 2026 Tüm Hakları Saklıdır.
-          </div>
-        )}
-      </aside>
-
-      {/* Ana İçerik Alanı */}
-      <main style={{ 
-        marginLeft: isMobile ? '0' : '280px', 
-        flex: 1, 
-        padding: isMobile ? '30px 20px' : '80px', 
-        maxWidth: '1000px',
-        width: '100%',
-        boxSizing: 'border-box'
-      }}>
-        
-        {loading ? (
-          <div style={{ textAlign: 'center', marginTop: '50px', fontSize: '18px', color: '#1B263B' }}>İçerik Yükleniyor...</div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '30px' : '50px' }}>
-            
-            <section>
-              <h2 style={{ 
-                color: '#1B263B', 
-                fontFamily: "'Playfair Display', serif", 
-                fontSize: isMobile ? '26px' : '32px', 
-                borderBottom: '2px solid #E0A96D', 
-                paddingBottom: '10px',
-                display: 'inline-block',
-                marginBottom: isMobile ? '20px' : '30px',
-                fontWeight: 'normal'
-              }}>
-                Hakkımda
-              </h2>
-              <div style={{ 
-                lineHeight: '1.8', 
-                fontSize: isMobile ? '15px' : '17px', 
-                color: '#4a4a4a', 
-                backgroundColor: 'white', 
-                padding: isMobile ? '25px' : '40px', 
-                borderRadius: '12px',
-                boxShadow: '0 10px 30px rgba(27, 38, 59, 0.05)',
-                overflowWrap: 'break-word'
-              }}>
-                <ReactMarkdown>{resumeData.bio}</ReactMarkdown>
-              </div>
-            </section>
-
-            <section>
-              <h2 style={{ 
-                color: '#1B263B', 
-                fontFamily: "'Playfair Display', serif", 
-                fontSize: isMobile ? '26px' : '32px', 
-                borderBottom: '2px solid #E0A96D', 
-                paddingBottom: '10px',
-                display: 'inline-block',
-                marginBottom: isMobile ? '20px' : '30px',
-                fontWeight: 'normal'
-              }}>
-                Akademik Geçmiş
-              </h2>
-              
-              {resumeData.education && resumeData.education.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  {resumeData.education.map((school) => (
-                    <div key={school.id} style={{ 
-                      backgroundColor: 'white', 
-                      padding: isMobile ? '20px' : '30px', 
-                      borderRadius: '12px', 
-                      borderLeft: '4px solid #E0A96D', 
-                      boxShadow: '0 5px 20px rgba(27, 38, 59, 0.03)'
-                    }}>
-                      <h3 style={{ margin: '0 0 8px 0', color: '#1B263B', fontSize: isMobile ? '18px' : '22px', fontFamily: "'Playfair Display', serif" }}>
-                        {school.name}
-                      </h3>
-                      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', color: '#7f8c8d', fontSize: isMobile ? '14px' : '16px', gap: isMobile ? '10px' : '0' }}>
-                        <span style={{ fontStyle: 'italic' }}>{school.department}</span>
-                        <span style={{ 
-                          fontWeight: 'bold', 
-                          color: '#E0A96D', 
-                          backgroundColor: 'rgba(224, 169, 109, 0.1)', 
-                          padding: '4px 12px', 
-                          borderRadius: '20px', 
-                          fontSize: '14px',
-                          alignSelf: isMobile ? 'flex-start' : 'center'
-                        }}>
-                          {school.year}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+          
+          {/* İstatistik Göstergeleri */}
+          {resumeData.stats && resumeData.stats.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : `repeat(${resumeData.stats.length}, 1fr)`, gap: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '25px' }}>
+              {resumeData.stats.map(stat => (
+                <div key={stat.id}>
+                  <div style={{ fontSize: '28px', fontWeight: '700', color: 'var(--accent)', fontFamily: 'var(--font-serif)' }}>{stat.value}</div>
+                  <div style={{ fontSize: '13px', color: '#94A3B8' }}>{stat.label}</div>
                 </div>
-              ) : (
-                <p style={{ color: '#7f8c8d', fontStyle: 'italic' }}>Henüz akademik bilgi eklenmemiş.</p>
-              )}
-            </section>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
+      {/* Biyografi / Hakkımda Bölümü */}
+      <section id="hakkimda">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
+          <h2 style={{ fontSize: isMobile ? '24px' : '30px', margin: 0 }}>Hakkımda</h2>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }} />
+        </div>
+        
+        <div style={{ 
+          backgroundColor: 'var(--bg-card)', 
+          padding: isMobile ? '25px' : '45px 50px', 
+          borderRadius: '16px', 
+          boxShadow: 'var(--shadow-sm)', 
+          border: '1px solid var(--border-color)',
+          fontSize: isMobile ? '15px' : '16.5px',
+          color: 'var(--text-main)',
+          lineHeight: '1.9'
+        }}>
+          <ReactMarkdown>{displayBio}</ReactMarkdown>
+
+          {/* İletişim ve Akademik Bağlantılar */}
+          {resumeData.contact && (
+            <div style={{ 
+              marginTop: '35px', 
+              paddingTop: '25px', 
+              borderTop: '1px solid var(--border-color)', 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: '12px',
+              alignItems: 'center'
+            }}>
+              <span style={{ fontSize: '13.5px', fontWeight: '600', color: 'var(--text-muted)', marginRight: '10px' }}>İletişim & Bağlantılar:</span>
+              {resumeData.contact.email && (
+                <a href={`mailto:${resumeData.contact.email}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', backgroundColor: 'var(--bg-main)', padding: '6px 14px', borderRadius: '20px', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontWeight: '500' }} onMouseOver={(e)=>e.currentTarget.style.borderColor='var(--accent)'} onMouseOut={(e)=>e.currentTarget.style.borderColor='var(--border-color)'}>
+                  ✉️ E-posta
+                </a>
+              )}
+              {resumeData.contact.scholar && (
+                <a href={resumeData.contact.scholar} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', backgroundColor: 'var(--bg-main)', padding: '6px 14px', borderRadius: '20px', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontWeight: '500' }} onMouseOver={(e)=>e.currentTarget.style.borderColor='var(--accent)'} onMouseOut={(e)=>e.currentTarget.style.borderColor='var(--border-color)'}>
+                  🎓 Google Scholar
+                </a>
+              )}
+              {resumeData.contact.orcid && (
+                <a href={resumeData.contact.orcid} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', backgroundColor: 'var(--bg-main)', padding: '6px 14px', borderRadius: '20px', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontWeight: '500' }} onMouseOver={(e)=>e.currentTarget.style.borderColor='var(--accent)'} onMouseOut={(e)=>e.currentTarget.style.borderColor='var(--border-color)'}>
+                  🟢 ORCID iD
+                </a>
+              )}
+              {resumeData.contact.github && (
+                <a href={resumeData.contact.github} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', backgroundColor: 'var(--bg-main)', padding: '6px 14px', borderRadius: '20px', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontWeight: '500' }} onMouseOver={(e)=>e.currentTarget.style.borderColor='var(--accent)'} onMouseOut={(e)=>e.currentTarget.style.borderColor='var(--border-color)'}>
+                  💻 GitHub
+                </a>
+              )}
+              {resumeData.contact.linkedin && (
+                <a href={resumeData.contact.linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', backgroundColor: 'var(--bg-main)', padding: '6px 14px', borderRadius: '20px', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontWeight: '500' }} onMouseOver={(e)=>e.currentTarget.style.borderColor='var(--accent)'} onMouseOut={(e)=>e.currentTarget.style.borderColor='var(--border-color)'}>
+                  💼 LinkedIn
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Akademik Geçmiş (Zaman Çizelgesi) */}
+      {resumeData.education.length > 0 && (
+        <section id="egitim">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
+            <h2 style={{ fontSize: isMobile ? '24px' : '30px', margin: 0 }}>Akademik Geçmiş</h2>
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }} />
+          </div>
+
+          <div className="timeline-container">
+            {resumeData.education.map((school) => (
+              <div key={school.id} className="timeline-item">
+                <div className="timeline-dot"></div>
+                <div className="timeline-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? '18px' : '21px', color: 'var(--primary)' }}>
+                      {school.name}
+                    </h3>
+                    <span style={{ 
+                      fontWeight: '600', 
+                      color: 'var(--accent)', 
+                      backgroundColor: 'var(--accent-light)', 
+                      padding: '4px 14px', 
+                      borderRadius: '30px', 
+                      fontSize: '13px' 
+                    }}>
+                      {school.year}
+                    </span>
+                  </div>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '15px', fontStyle: 'italic', margin: 0 }}>
+                    {school.department}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Çalışmalar & Yayınlar */}
+      <section id="calismalar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
+          <h2 style={{ fontSize: isMobile ? '24px' : '30px', margin: 0 }}>Çalışmalar & Yayınlar</h2>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }} />
+        </div>
+        
+        {projects.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {projects.map((project) => (
+              <div 
+                key={project.id} 
+                className="pub-card"
+                onClick={() => navigate(`/project/${project.id}`)}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px', flexDirection: isMobile ? 'column' : 'row', gap: '10px' }}>
+                  <h3 style={{ margin: 0, fontSize: isMobile ? '20px' : '23px', color: 'var(--primary)' }}>
+                    {project.name}
+                  </h3>
+                  <span style={{ 
+                    fontSize: '13px', 
+                    color: 'var(--text-light)', 
+                    border: '1px solid var(--border-color)', 
+                    padding: '3px 10px', 
+                    borderRadius: '6px',
+                    fontWeight: '500'
+                  }}>
+                    {project.date}
+                  </span>
+                </div>
+                
+                <p style={{ 
+                  color: 'var(--text-muted)', 
+                  fontSize: '15px', 
+                  lineHeight: '1.7', 
+                  margin: '0 0 20px 0', 
+                  display: '-webkit-box', 
+                  WebkitLineClamp: '3', 
+                  WebkitBoxOrient: 'vertical', 
+                  overflow: 'hidden' 
+                }}>
+                  {project.content.replace(/[#_*~`]/g, '')}
+                </p>
+                
+                <div style={{ 
+                  display: 'flex',
+                  gap: '20px',
+                  alignItems: 'center',
+                  marginTop: '20px'
+                }}>
+                  <div style={{ 
+                    color: 'var(--accent)', 
+                    fontWeight: '600', 
+                    fontSize: '14px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '6px',
+                    transition: 'gap 0.2s ease'
+                  }}
+                  className="explore-link"
+                  >
+                    Çalışmayı İncele <span style={{ transition: 'transform 0.2s' }}>→</span>
+                  </div>
+                  {project.external_link && (
+                    <a 
+                      href={project.external_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ 
+                        color: 'var(--text-muted)', 
+                        fontSize: '14px', 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '4px',
+                        fontWeight: '500'
+                      }}
+                      onMouseOver={(e)=>e.currentTarget.style.color='var(--accent)'}
+                      onMouseOut={(e)=>e.currentTarget.style.color='var(--text-muted)'}
+                    >
+                      Makaleyi Oku (arXiv) ↗
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '40px', backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+            <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>Henüz bir çalışma veya yayın eklenmemiş.</p>
           </div>
         )}
+      </section>
 
-      </main>
     </div>
   );
 }

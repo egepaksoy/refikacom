@@ -1,1 +1,31 @@
-[]
+[
+    {
+        "id": 101,
+        "name": "Kuantum Dolanıklık ve Entropi Hesaplamaları",
+        "date": "Haziran 2025",
+        "contributors": "Dr. Refika Öncü, Prof. Dr. Hans-Thomas Elze",
+        "content": "# Kuantum Dolanıklık ve Entropi Hesaplamaları\n\nBu çalışmada, çok parçacıklı kuantum sistemlerinde dolanıklık entropisinin hesabı için yeni bir sayısal yaklaşım önerilmiştir. Yüksek boyutlu Hilbert uzaylarında kısmi iz alma işlemlerinin hesaplama maliyetini düşürmek amacıyla geliştirilen bu algoritma, kuantum bilgi teorisinde önemli bir adım teşkil etmektedir.\n\n### Metodoloji ve Sonuçlar\nGeliştirdiğimiz metot, tensör ağları ve Monte Carlo entegrasyonu tekniklerini bir araya getirmektedir. Yapılan simülasyonlar, özellikle spin zinciri modellerinde dolanıklık entropisinin faz geçiş bölgelerinde sergilediği logaritmik davranışı geleneksel yöntemlere kıyasla %40 daha hızlı hesaplayabildiğimizi göstermiştir.\n\nBu çalışma, gelecekteki hata toleranslı kuantum bilgisayarların tasarımında ve kuantum hata düzeltme kodlarının optimizasyonunda kullanılma potansiyeline sahiptir.",
+        "gallery": [
+            "http://127.0.0.1:8000/uploads/101/479632f19d164f37a78f84876a99e5bb.png"
+        ],
+        "external_link": "https://arxiv.org/abs/2506.12345"
+    },
+    {
+        "id": 102,
+        "name": "Büyük Hadron Çarpıştırıcısı (LHC) Verilerinde Makine Öğrenmesi ile Anomali Tespiti",
+        "date": "Eylül 2024",
+        "contributors": "Dr. Refika Öncü, CERN CMS Araştırma Grubu",
+        "content": "# LHC Verilerinde Makine Öğrenmesi ile Anomali Tespiti\n\nStandart Model'in ötesindeki yeni fizik arayışlarında (BSM - Beyond Standard Model), çarpışma verilerindeki son derece nadir sinyalleri yakalamak büyük bir zorluktur. Bu araştırmada, gözetimsiz öğrenme (unsupervised learning) yöntemleri kullanılarak CMS detektöründen elde edilen jet verilerinde anomali tespiti yapılmıştır.\n\n### Model Mimarisi\nÇalışmada varyasyonel otokodlayıcılar (VAE) ve grafik sinir ağları (GNN) kullanılmıştır. Geliştirilen model, Standart Model arka plan olayları üzerinde eğitilmiş ve yeni ağır bozon veya karanlık madde adayları gibi potansiyel sinyalleri yüksek verimlilikle tespit etmeyi başarmıştır.\n\nElde edilen sonuçlar, fizikçilerin geleneksel kesme kriterlerine (cut-based analysis) bağımlı kalmadan veri tabanlı anomali taraması yapabilmelerine olanak tanımaktadır.",
+        "gallery": [],
+        "external_link": "https://arxiv.org/abs/2409.54321"
+    },
+    {
+        "id": 103,
+        "name": "Karanlık Madde Adaylarının Kozmolojik Dağılımı ve Gravitasyonel Merceklenme",
+        "date": "Kasım 2023",
+        "contributors": "Dr. Refika Öncü, ODTÜ Astrofizik Araştırma Grubu",
+        "content": "# Karanlık Madde Adaylarının Kozmolojik Dağılımı ve Gravitasyonel Merceklenme\n\nGravitasyonel merceklenme, evrendeki görünmeyen kütle dağılımını haritalandırmak için elimizdeki en güçlü araçlardan biridir. Bu projede, zayıf merceklenme (weak lensing) verileri analiz edilerek galaksi kümelerindeki karanlık madde yoğunluk profilleri incelenmiştir.\n\n### Analiz ve Çıkarımlar\nEvrensel yapı oluşum simülasyonları ile gözlemsel veriler karşılaştırılmış, özellikle WIMP (Zayıf Etkileşen Ağır Parçacıklar) ve hafif aksiyon modellerinin tahminleri sınanmıştır. Gözlemlerimiz, galaksi kümelerinin merkez bölgelerinde karanlık madde yoğunluğunun Standart NFW (Navarro-Frenk-White) profiline büyük ölçüde uyum sağladığını, ancak dış çeperlerde bazı sapmalar olduğunu göstermektedir.",
+        "gallery": [],
+        "external_link": "https://arxiv.org/abs/2311.98765"
+    }
+]

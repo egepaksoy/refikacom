@@ -101,9 +101,25 @@ class School(BaseModel):
     department: str
     year: str
 
+class ContactInfo(BaseModel):
+    email: str | None = ""
+    scholar: str | None = ""
+    orcid: str | None = ""
+    github: str | None = ""
+    linkedin: str | None = ""
+
+class StatItem(BaseModel):
+    id: int
+    value: str
+    label: str
+
 class ResumeData(BaseModel):
     bio: str
     education: List[School]
+    contact: ContactInfo | None = None
+    hero_title: str | None = ""
+    hero_subtitle: str | None = ""
+    stats: List[StatItem] | None = None
 
 # Verileri kaydedeceğimiz basit yerel dosya
 RESUME_FILE = "resume_data.json"
@@ -111,23 +127,34 @@ RESUME_FILE = "resume_data.json"
 # 1. Özgeçmiş Verisini Getirme (GET)
 @app.get("/api/resume")
 async def get_resume(token: str = Depends(oauth2_scheme)):
-    # Eğer daha önce kaydedilmiş bir dosya varsa onu oku ve React'e gönder
     if os.path.exists(RESUME_FILE):
         with open(RESUME_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     
-    # Dosya yoksa varsayılan boş bir şablon dön
     return {
         "bio": "# Merhaba, Ben Ege\n\nBuraya detayları yazabilirsin...",
-        "education": []
+        "education": [],
+        "contact": {
+            "email": "",
+            "scholar": "",
+            "orcid": "",
+            "github": "",
+            "linkedin": ""
+        },
+        "hero_title": "Fizik Dünyasını Keşfetmek",
+        "hero_subtitle": "Kuantum Hesaplama & Yüksek Enerji Fiziği Araştırmacısı",
+        "stats": [
+            {"id": 1, "value": "3+", "label": "Aktif Proje"},
+            {"id": 2, "value": "5+", "label": "Akademik Yayın"},
+            {"id": 3, "value": "CERN", "label": "Araştırma İşbirliği"},
+            {"id": 4, "value": "PhD", "label": "Derecesi / Adaylığı"}
+        ]
     }
 
 # 2. Özgeçmiş Verisini Kaydetme (POST)
 @app.post("/api/resume")
 async def save_resume(resume: ResumeData, token: str = Depends(oauth2_scheme)):
-    # React'ten gelen veriyi al ve JSON dosyasına yaz
     with open(RESUME_FILE, "w", encoding="utf-8") as f:
-        # Pydantic modelini dict'e çevirip kaydediyoruz
         json.dump(resume.model_dump(), f, ensure_ascii=False, indent=4)
         
     return {"message": "Özgeçmiş başarıyla sunucuya kaydedildi!"}
@@ -140,7 +167,8 @@ class ProjectItem(BaseModel):
     date: str
     contributors: str
     content: str
-    gallery: List[str] # Resim linklerini (URL) tutacak
+    gallery: List[str]
+    external_link: str | None = ""
 
 PROJECTS_FILE = "projects_data.json"
 
@@ -234,5 +262,28 @@ async def get_public_resume():
             return json.load(f)
     return {
         "bio": "# Merhaba!\nHenüz bir özgeçmiş bilgisi girilmedi.",
-        "education": []
+        "education": [],
+        "contact": {
+            "email": "",
+            "scholar": "",
+            "orcid": "",
+            "github": "",
+            "linkedin": ""
+        },
+        "hero_title": "Fizik Dünyasını Keşfetmek",
+        "hero_subtitle": "Kuantum Hesaplama & Yüksek Enerji Fiziği Araştırmacısı",
+        "stats": [
+            {"id": 1, "value": "3+", "label": "Aktif Proje"},
+            {"id": 2, "value": "5+", "label": "Akademik Yayın"},
+            {"id": 3, "value": "CERN", "label": "Araştırma İşbirliği"},
+            {"id": 4, "value": "PhD", "label": "Derecesi / Adaylığı"}
+        ]
     }
+
+# Ziyaretçilerin projeleri listeleyebilmesi için şifresiz GET rotası
+@app.get("/api/public/projects")
+async def get_public_projects():
+    if os.path.exists(PROJECTS_FILE):
+        with open(PROJECTS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
