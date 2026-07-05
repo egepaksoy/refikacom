@@ -19,6 +19,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 app = FastAPI()
 
+@app.get("/")
+async def read_root():
+    return {
+        "status": "active",
+        "message": "Dr. Refika Öncü Akademik Portfolyo API Sunucusu Çalışıyor!",
+        "documentation": "/docs"
+    }
+
 # Kalıcı Veri Depolama Dizinleri (Render Persistent Disk desteği için)
 DATA_DIR = os.getenv("DATA_DIR", ".")
 try:
