@@ -34,7 +34,7 @@ app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 allowed_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://egepaksoy.github.io"
+    "https://refikaoncu.github.io"
 ]
 env_origins = os.getenv("ALLOWED_ORIGINS")
 if env_origins:

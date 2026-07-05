@@ -29,7 +29,7 @@ Web servisi oluştururken form alanlarını aşağıdaki gibi doldurun:
 ### Adım C: Çevre Değişkenleri (Environment Variables)
 Sayfanın altındaki **Advanced** sekmesine tıklayın ve aşağıdaki Environment Variables alanlarını ekleyin:
 1. `DATA_DIR` -> `/data` *(Veritabanı JSON ve uploads klasörünü diske yönlendirir)*
-2. `ALLOWED_ORIGINS` -> `https://egepaksoy.github.io` *(Frontend sitenizin CORS izni)*
+2. `ALLOWED_ORIGINS` -> `https://refikaoncu.github.io` *(Frontend sitenizin CORS izni)*
 
 ### Adım D: Kalıcı Disk Tanımlama (Persistent Disk)
 Render Free planda disk desteği vermez, ancak **Starter** veya üzeri bir plan seçtiyseniz (veya verilerin Render her yeniden başladığında sıfırlanmasını istemiyorsanız) şu diski tanımlayın:
@@ -65,10 +65,10 @@ Bu komut:
 - Ardından derlenen bu klasörü GitHub deponuzdaki `gh-pages` dalına (branch) otomatik olarak pushlar.
 
 ### Adım B: GitHub Depo Ayarlarını Yapma
-1. GitHub deponuzun tarayıcı sayfasına gidin (`github.com/egepaksoy/refikacom`).
+1. GitHub deponuzun tarayıcı sayfasına gidin (`github.com/refikaoncu/refikacom`).
 2. **Settings** -> **Pages** sekmesine gelin.
 3. **Build and deployment** başlığı altında:
    - **Source:** `Deploy from a branch` seçin.
    - **Branch:** `gh-pages` ve klasör olarak `/ (root)` seçerek **Save** butonuna tıklayın.
 
-Birkaç dakika içinde portfolyo siteniz **`https://egepaksoy.github.io/refikacom/`** adresinde yayında olacaktır!
+Birkaç dakika içinde portfolyo siteniz **`https://refikaoncu.github.io/refikacom/`** adresinde yayında olacaktır!
